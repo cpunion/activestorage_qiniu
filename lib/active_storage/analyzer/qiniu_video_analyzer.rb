@@ -17,12 +17,21 @@ module ActiveStorage
     end
 
     def metadata
-      {width: width, height: height, duration: duration, aspect_ratio: aspect_ratio}.compact
+      w, h = width, height
+      w, h = h, w if rotated
+      {width: w, height: h, duration: duration, aspect_ratio: aspect_ratio}.compact
     rescue
       {}
     end
 
     private
+
+    def rotated
+      @rotated ||= begin
+        tags = video_stream['tags']
+        tags.is_a?(Hash) && ['90', '-90'].include?(tags['rotate'])
+      end
+    end
 
     def width
       video_stream['width']
